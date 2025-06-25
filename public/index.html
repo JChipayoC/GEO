@@ -56,7 +56,7 @@
       });
 
       // Obtener las ubicaciones del servidor Node.js
-      fetch('http://localhost:3000/api/locations')  // URL de tu servidor Node.js
+      fetch('https://sgo.vercel.app/api/location')  // URL de tu servidor Node.js
         .then(response => response.json())  // Convertir la respuesta a JSON
         .then(locations => {
           // Verificar que las ubicaciones fueron recibidas
