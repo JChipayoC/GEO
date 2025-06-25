@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ubicaciones ESP32</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQSxTQ6aodAsjNsCcoi9ijUHCpojK66tc&callback=initMap" async defer></script>  <!-- Clave API -->
+  <style>
+    /* Estilos básicos */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    /* Título */
+    h1 {
+      color: #333;
+      font-size: 2.5rem;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Contenedor principal */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    /* Estilo del mapa */
+    #map {
+      height: 80vh;  /* 80% de la altura de la pantalla */
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <script>
+    let map;
+
+    // Función para inicializar el mapa
+    function initMap() {
+      // Crear el mapa centrado en una ubicación predeterminada
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 10.1234, lng: -70.1234 },  // Coordenadas predeterminadas
+        zoom: 5,
+      });
+
+      // Obtener las ubicaciones del servidor Node.js
+      fetch('http://localhost:3000/api/locations')  // URL de tu servidor Node.js
+        .then(response => response.json())  // Convertir la respuesta a JSON
+        .then(locations => {
+          // Verificar que las ubicaciones fueron recibidas
+          console.log(locations);
+
+          // Si existen ubicaciones
+          if (locations.length > 0) {
+            // Crear marcadores para todas las ubicaciones
+            locations.forEach(location => {
+              new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },  // Usar latitud y longitud del JSON
+                map: map,
+                title: `Dispositivo: ${location.deviceId} - Lat: ${location.lat}, Lng: ${location.lng}`,  // Mostrar dispositivo, lat y lng en el título
+              });
+            });
+
+            // Centrar el mapa en la última ubicación
+            const lastLocation = locations[locations.length - 1];  // Obtener la última ubicación
+            map.setCenter({ lat: lastLocation.lat, lng: lastLocation.lng });  // Centrar en la última ubicación
+            map.setZoom(15);  // Puedes ajustar el zoom si lo necesitas
+          } else {
+            console.log("No se encontraron ubicaciones.");
+          }
+        })
+        .catch(error => {
+          console.error('Error al obtener las ubicaciones:', error);
+        });
+    }
+  </script>
+</head>
+<body onload="initMap()">
+  <div class="container">
+    <h1>Ubicaciones del ESP32</h1>
+    <div id="map"></div>  <!-- Mapa con el tamaño adecuado -->
+  </div>
+</body>
+</html>
